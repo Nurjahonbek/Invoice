@@ -1,33 +1,31 @@
-const StatusBadge = ({ status }) => {
-    const statusConfig = {
-      paid: {
-        text: 'Paid',
-        bg: 'bg-green-100',
-        textColor: 'text-green-800',
-        dot: 'bg-green-500'
-      },
-      pending: {
-        text: 'Pending',
-        bg: 'bg-orange-100',
-        textColor: 'text-orange-800',
-        dot: 'bg-orange-500'
-      },
-      draft: {
-        text: 'Draft',
-        bg: 'bg-gray-100',
-        textColor: 'text-gray-800',
-        dot: 'bg-gray-500'
-      }
-    };
+import { buttonVariants } from "./ui/button";
 
-    const { text, bg, textColor, dot } = statusConfig[status] || statusConfig.draft;
-
-    return (
-      <div className={`${bg} ${textColor} px-4 py-2 rounded-md flex items-center`}>
-        <span className={`w-2 h-2 ${dot} rounded-full mr-2`}></span>
-        {text}
-      </div>
-    );
+export default function StatusBadge({ status = "draft" }) {
+  const style = {
+    draft: {
+      dot: "bg-[rgba(55,59,83,1)]",
+      text: "text-[rgb(55,59,83)]",
+      bg: "rgba(55,59,83,0.05)",
+    },
+    paid: {
+      dot: "bg-[#33D69F]",
+      text: "text-[#33D69F]",
+      bg: "rgba(51,214,159,0.05)",
+    },
+    pending: {
+      dot: "bg-[#FF8F00]",
+      text: "text-[#FF8F00]",
+      bg: "rgba(255,143,0,0.05)",
+    },
   };
 
-  export default StatusBadge;
+  return (
+    <span
+      className={`${buttonVariants({ variant: "outline" })} flex items-center justify-center gap-2 min-w-[104px] py-1 px-2 rounded-md`}
+      style={{ backgroundColor: style[status].bg }}
+    >
+      <span className={`inline-block w-2 h-2 rounded-full ${style[status].dot}`}></span>
+      <span className={`capitalize ${style[status].text}`}>{status}</span>
+    </span>
+  );
+}

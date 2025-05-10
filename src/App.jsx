@@ -1,17 +1,18 @@
-import { InvoiceProvider } from './context/InvoiceContext';
-import { ThemeProvider } from './context/ThemeContext';
-import HomePage from './pages/HomePage';
 
-function App() {
-  return (
-    <ThemeProvider>
-      <InvoiceProvider>
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
-          <HomePage />
-        </div>
-      </InvoiceProvider>
-    </ThemeProvider>
-  );
+import  Home  from "./pages/Home"
+import { createBrowserRouter, RouterProvider } from "react-router-dom"
+import Details from "./pages/Details"
+
+export default function App() {
+  const routes = createBrowserRouter([
+    {
+      path:"/",
+      element: <Home />
+    },
+    {
+      path: "/:id",
+      element: <Details />
+    },
+  ])
+  return <RouterProvider router={routes}/>
 }
-
-export default App;

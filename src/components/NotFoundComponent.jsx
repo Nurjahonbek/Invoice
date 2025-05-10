@@ -1,5 +1,5 @@
 import React from 'react'
-import empty from '../assets/empty.svg'
+import empty from '../../public/empty.svg'
 function NotFoundComponent() {
   return (
     <div className='flex flex-col items-center text-card '>

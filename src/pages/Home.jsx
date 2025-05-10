@@ -6,9 +6,9 @@ import ThemesToggle from '../components/ThemesToggle'
 function Home() {
 
   return (
-    <div>
+    <div className='px-20 py-3'>
       <Header/>
-      {/* <ThemesToggle/> */}
+      <ThemesToggle/>
       <InvoiceCards/>
     </div>
   )

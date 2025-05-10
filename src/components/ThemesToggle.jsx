@@ -11,41 +11,51 @@ import { Button } from "./ui/button";
 import { useAppStore } from "../lib/zustand";
 
 function ThemesToggle() {
-    const [theme, setTheme] = useState(localStorage.getItem("theme") || 'default')
   const { themes } = useAppStore();
-  const [dark, setDark] = useState(document.documentElement.dataset.theme.startsWith("dark-"))
-  function handleTheme(el) {
-    if(dark){
-        const value = `dark-${el}`;
-        document.documentElement.dataset.theme = value
-        setTheme(value)
-    }else{
-    document.documentElement.dataset.theme = `${el}`
-    setTheme(el)
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || 'default')
+
+  function handleTheme(type, mode) {
+    const html = document.documentElement
+    let isDark;
+    if(html.dataset.theme.startsWith("dark-")){
+      isDark = true
     }
-  }
-  function handleDark(){
-        setDark(!dark)
+    else{
+      isDark = false
+    }
+
+    if(mode === 'theme'){
+      if(!isDark){
+        html.dataset.theme = `${type}`
+        setTheme(`${type}`)
+      }
+      else{
+        html.dataset.theme = type;
+        setTheme(type)
+      }
+    }
+    else if(mode === "dark"){
+      if(type.startsWith('dark-')){
+        html.dataset.theme = type.replace("dark-", "");
+        setTheme(type.replace("dark-", ""))
+      }
+      else{
+        setTheme(`dark-${type}`)
+        html.dataset.theme = `dark-${type}`
+      }
+    }
   }
 
   useEffect(() =>{
-    if(dark){
-        const value = `dark-${theme}`
-        document.documentElement.dataset.theme = value
-        setTheme(value)
-    }
-    else{
-         document.documentElement.dataset.theme = theme
-         setTheme(theme)
-    }
-  }, [dark])
+    document.documentElement.dataset.theme = theme;
+  }, [])
 
   useEffect(() =>{
     localStorage.setItem('theme', theme)
   }, [theme])
 
   return (
-    <div className="flex gap-5 ">
+    <div className="flex gap-5 base-container mb-5 ">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary">
@@ -60,7 +70,7 @@ function ThemesToggle() {
             {themes.map((el, index) => {
               return (
                 <Button key={index} onClick={() =>{
-                    handleTheme(el)
+                    handleTheme(el, "theme")
                 }} className={"justify-start"} variant="ghost">
                   {el}
                 </Button>
@@ -69,8 +79,10 @@ function ThemesToggle() {
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button onClick={handleDark}>
-        {dark ? <Sun/> : <Moon/>}
+      <Button onClick={() =>{
+        handleTheme(theme, "dark")
+      }}>
+        {theme.startsWith("dark-") ? <Sun/> : <Moon/>}
       </Button>
     </div>
   );

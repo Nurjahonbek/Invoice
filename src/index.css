@@ -119,6 +119,6 @@
     @apply bg-background text-foreground;
   }
   .base-container{
-    @apply container mx-auto
+    @apply w-full max-w-[740px] pr-5 pl-5 md:pl-20 mx-auto
   }
 }

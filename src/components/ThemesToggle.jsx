@@ -55,15 +55,15 @@ function ThemesToggle() {
   }, [theme])
 
   return (
-    <div className="flex gap-5 base-container mb-5 ">
+    <div className="flex md:items-start md:mb-8 md:p-0 gap-5 base-container md:flex-col  ">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary">
-            Change theme
+            <span className="md:hidden">Change theme</span>
             <ArrowBigDown />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56">
+        <DropdownMenuContent className="w-40 flex-col flex md:ml-25 ">
           <DropdownMenuLabel>Themes</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <div className="flex flex-col">
@@ -79,7 +79,7 @@ function ThemesToggle() {
           </div>
         </DropdownMenuContent>
       </DropdownMenu>
-      <Button onClick={() =>{
+      <Button  size={'icon'} onClick={() =>{
         handleTheme(theme, "dark")
       }}>
         {theme.startsWith("dark-") ? <Sun/> : <Moon/>}

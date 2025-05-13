@@ -39,12 +39,11 @@ function InvoiceCards() {
   return (
     <div className="base-container flex flex-col gap-4">
       {invoices.map((el) => {
-        const { total, createdAt, invoiceId, status, id, clientName } = el;
+        const { total, createdAt, status, id, clientName } = el;
 
         return (
           <MyCard
             total={total}
-            invoiceId={invoiceId}
             createdAt={createdAt}
             status={status}
             clientName={clientName}

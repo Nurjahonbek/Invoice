@@ -1,3 +1,5 @@
+import { create } from "zustand";
+
 const baseURL = import.meta.env.VITE_BASE_URL;
 
 // All by id
@@ -15,8 +17,9 @@ export async function getInvoices(route = "/invoices", query = '') {
 }
 
 // Get By id
+
 export async function getInvoiceById(route = '/invoices', id) {
-    const req = await fetch(`route + ${baseURL}/invoices/${id}`);
+    const req = await fetch(`${baseURL}${route}/${id}`);
 
     if (req.status === 200) {
         const result = await req.json();
@@ -26,7 +29,8 @@ export async function getInvoiceById(route = '/invoices', id) {
     }
 }
 
- // Delete by id
+
+// Delete by id
 export async function deleteById(id) {
     const req = await fetch(`${baseURL}/invoices/${id}`, {
         method: "DELETE",

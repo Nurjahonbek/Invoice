@@ -5,14 +5,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+
 
 import { Arrow, DropdownMenuCheckboxItem } from "@radix-ui/react-dropdown-menu";
 import { Button, buttonVariants } from "./ui/button";
@@ -55,6 +48,7 @@ const info ={
 }
 
 function Header() {
+  const { setSheetOpen} = useAppStore()
   const { setFilter } = useAppStore();
   const { filter } = useAppStore();
   const [items, setItems] = useState({
@@ -114,18 +108,12 @@ function Header() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Sheet>
-        <SheetTrigger className={buttonVariants({variant: 'default'})}>
+        <Button  onClick={setSheetOpen}>
         <PlusCircleIcon />
         New Invoices
-      </SheetTrigger>
-        <SheetContent className="ml-[72px] min-w-[calc(70%-72px)] min-h-[calc(100%-56px)] overflow-y-scroll"  side="left">
-          <SheetHeader className='sticky top-0 w-full bg-white border-b'>
-            <SheetTitle>Are you absolutely sure?</SheetTitle>
-            <Form info={null}/>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>
+        </Button>
+
+
     </div>
   );
 }

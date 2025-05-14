@@ -6,14 +6,14 @@ import { useAppStore } from '../lib/zustand';
 import NotFoundComponent from './NotFoundComponent';
 
 function InvoiceCards() {
-  const { filter } = useAppStore();
-  const [invoices, setInvoices] = useState([]);
+  const { filter, invoices, setInvoices } = useAppStore();
+  // const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    getInvoices('/invoices', filter)
+    getInvoices(filter)
       .then((res) => {
         setInvoices(res);
       })

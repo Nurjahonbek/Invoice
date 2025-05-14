@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getInvoiceById } from "../request";
+import { useNavigate, useParams } from "react-router-dom";
+import { deleteById, getInvoiceById, updateById } from "../request";
 
 import { Card, CardContent } from "@/components/ui/card";
 import StatusBadge from "../components/StatusBadge";
@@ -14,16 +14,60 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { DialogClose } from "@radix-ui/react-dialog";
+import { toast } from "sonner";
+import { tr } from "date-fns/locale";
+import { useAppStore } from "../lib/zustand";
 
 function Details() {
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [updateLoading, setUpdateLoading] = useState(false)
   const { id } = useParams();
+  const { updateInvoice, setEditedData, setSheetOpen} = useAppStore()
   const [invoice, setInvoice] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const navigate = useNavigate()
+
+  function handleDelete(id){
+    setDeleteLoading(true)
+    deleteById(id)
+    .then((res) => {
+      navigate(-1)
+      updateInvoice(res)
+    })
+    .catch(({message}) => {
+      toast.error(message)
+    })
+    .finally(() => {
+      setDeleteLoading(false)
+    })
+  }
+
+  function handleUpdate(id, data){
+    setUpdateLoading(true)
+    updateById(id, data)
+    .then((res) => {
+      setInvoice([res])
+      navigate(-1)
+    })
+    .catch(({message}) => {
+      toast.error(message)
+    })
+    .finally(() => {
+      setUpdateLoading(false)
+    })
+  }
+
+
+  function handleEdit(data){
+    setSheetOpen()
+    setEditedData(data)
+  }
+
 
   useEffect(() => {
     setLoading(true);
-    getInvoiceById("/invoices", id)
+    getInvoiceById(id)
       .then((res) => {
         setInvoice(res);
       })
@@ -55,7 +99,9 @@ function Details() {
               <StatusBadge status={invoice.status} />
             </div>
             <div className="flex gap-3">
-              <Button variant="ghost">Edit</Button>
+              <Button onClick={() => {
+                handleEdit(invoice)
+              }} variant="ghost">Edit</Button>
               <Dialog>
                 <DialogTrigger
                   className={buttonVariants({ variant: "destructive" })}
@@ -73,13 +119,15 @@ function Details() {
                     <DialogClose className={buttonVariants({variant: 'ghost'})}>
                     Cencel
                     </DialogClose>
-                    <Button variant='destructive'>Delete</Button>
+                    <Button disabled={deleteLoading} onClick={() => handleDelete(invoice.id)} variant='destructive'>{deleteLoading ? 'Loading...' : 'Delete'}</Button>
                   </div>
                 </DialogContent>
               </Dialog>
 
-              {/* <Button variant="destructive"></Button> */}
-              <Button>Mark as Paid</Button>
+              {invoice.status === 'pending' &&
+              <>
+                <Button onClick={() => handleUpdate(invoice.id, {status: 'paid'})}>{updateLoading ? "Loading..." : 'Mark as Paid'}</Button>
+              </>}
             </div>
           </CardContent>
         </Card>
@@ -89,3 +137,7 @@ function Details() {
 }
 
 export default Details;
+
+
+
+

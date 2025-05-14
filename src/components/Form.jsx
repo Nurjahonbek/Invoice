@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ItemList from "./ItemList";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
@@ -14,8 +14,13 @@ import {
     SelectValue,
   } from "@/components/ui/select"
 import { prepareData } from "../lib/utils";
+import { useAppStore } from "../lib/zustand";
+import { addInvoice, updateById } from "../request";
+import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
-function Form({info}) {
+function Form({info, setSheetOpen}) {
+  const {items: zustandItems} = useAppStore()
   const {
     senderAddress,
     clientAddress,
@@ -28,10 +33,20 @@ function Form({info}) {
     items
     } = info || {};
 
+    const navigate = useNavigate()
+    const {setInvoices, updateInvoice} = useAppStore()
+    const [sending, setSending] = useState(null)
+    // const [updating, setUpdating] = useState(null)
+    const [loading, setLoading] = useState(false)
+
     function handleSubmit(e){
         e.preventDefault()
         const formData = new FormData(e.target)
-        const result = {status: e.nativeEvent.submitter.id}
+        const result = {}
+        if(!info){
+          result.status = e.nativeEvent.submitter.id
+        }
+
         formData.forEach((value, key) => {
           if(key === 'quantity' || key === 'price' || key === 'paymentTerms'){
             result[key] = Number(value)
@@ -41,8 +56,71 @@ function Form({info}) {
 
           }
         })
+        result.items = zustandItems
         const readyData = prepareData(result)
+        setSending(readyData)
+        setSending({mode: e.nativeEvent.submitter.id === "edit" ? "edit" : "add", data: readyData})
+
     }
+
+    // useEffect(() => {
+    //   if(updating){
+    //     setLoading(true)
+    //      updateById(updating.id, updating)
+    //         .then((res) => {
+    //           setInvoices(res)
+    //           navigate(-1)
+    //         })
+    //         .catch(({message}) => {
+    //           toast.error(message)
+    //         })
+    //         .finally(() => {
+    //           setUpdating(null)
+    //           setLoading(false)
+    //         })
+
+    //   }
+    // }, [updating])
+
+    useEffect(() => {
+      if(sending){
+        setLoading(true)
+        if(sending.mode === "add"){
+        addInvoice(sending)
+        .then((res) => {
+          toast.success("Succesfully added ✅")
+          setSheetOpen(false)
+          updateInvoice(res)
+        })
+        .catch(({message}) => {
+          toast.error(message)
+
+        })
+        .finally(() => {
+          setLoading(false)
+          setSending(null)
+        })
+        }
+        else if(sending.mode === "edit"){
+          updateById(info.id, sending.data)
+          .then((res) => {
+            toast.success("Succesfully edited ✅")
+            setSheetOpen(false)
+            navigate(-1)
+            updateInvoice(res)
+          })
+          .catch(({message}) => {
+            toast.error(message)
+
+          })
+          .finally(() => {
+            setLoading(false)
+            setSending(null)
+          })
+        }
+
+      }
+    }, [sending ? JSON.stringify(sending) : sending])
 
   return (
     <form onSubmit={handleSubmit} className="p-4 ml-5 pt-14">
@@ -210,18 +288,18 @@ function Form({info}) {
         </div>
       </div>
 
-      <ItemList  info={info && info.items}/>
+      <ItemList info={info && info.items}/>
 
       {info ? (
         <div className="flex justify-end mt-10 gap-5">
         <Button variant={'outline'}>Cencel</Button>
-        <Button onSubmit={handleSubmit}>Save Changes</Button>
+        <Button id='edit' disabled={loading}>{loading ? 'Loading...' : 'Save Changes'}</Button>
       </div>
       ) : (
       <div className="flex justify-end mt-10 gap-5">
         <Button type='button' variant={'outline'}>Discard</Button>
-        <Button id="draft" variant={'secondary'}>Save as Draft</Button>
-        <Button id='pending'>Save & Send</Button>
+        <Button id="draft" disabled={loading} variant={'secondary'}>{loading ? 'loading' : 'Save as Draft'}</Button>
+        <Button disabled={loading} id='pending'>{loading ? "loading" : "Save & Send"}</Button>
       </div>
       )}
 

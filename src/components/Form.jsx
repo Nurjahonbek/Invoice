@@ -18,6 +18,7 @@ import { useAppStore } from "../lib/zustand";
 import { addInvoice, updateById } from "../request";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { ThreeDots } from "react-loader-spinner";
 
 function Form({ info, setSheetOpen }) {
   const { items: zustandItems, setItems } = useAppStore();
@@ -50,14 +51,21 @@ function Form({ info, setSheetOpen }) {
       } else if (key.startsWith("clientAddress-")) {
         const subKey = key.replace("clientAddress-", "");
         result.clientAddress[subKey] = value;
-      } else if (key === "quantity" || key === "price" || key === "paymentTerms") {
+      } else if (
+        key === "quantity" ||
+        key === "price" ||
+        key === "paymentTerms"
+      ) {
         result[key] = Number(value);
       } else {
         result[key] = value;
       }
     });
 
-    result.total = zustandItems.reduce((acc, item) => acc + (item.quantity * item.price), 0);
+    result.total = zustandItems.reduce(
+      (acc, item) => acc + item.quantity * item.price,
+      0
+    );
 
     const btnId = e.nativeEvent.submitter.id;
     if (btnId === "draft") {
@@ -74,8 +82,6 @@ function Form({ info, setSheetOpen }) {
     });
   }
 
-
-
   useEffect(() => {
     if (sending) {
       setLoading(true);
@@ -83,9 +89,11 @@ function Form({ info, setSheetOpen }) {
         addInvoice(sending.data)
           .then((res) => {
             toast.success("Successfully added ✅");
-            setSheetOpen(false);
-            console.log(res);
+            setTimeout(() => {
+              window.location.reload()
 
+            }, 1370);
+            setSheetOpen(false);
             updateInvoice(res);
           })
           .catch(({ message }) => {
@@ -113,9 +121,6 @@ function Form({ info, setSheetOpen }) {
       }
     }
   }, [sending, info, navigate, setSheetOpen, updateInvoice]);
-
-  // console.log(info);
-
 
   return (
     <form onSubmit={handleSubmit} className="p-4 ml-5 pt-14">
@@ -259,7 +264,10 @@ function Form({ info, setSheetOpen }) {
             />
           </div>
 
-          <Select name="paymentTerms" defaultValue={info?.paymentTerms?.toString() || "30"}>
+          <Select
+            name="paymentTerms"
+            defaultValue={info?.paymentTerms?.toString() || "30"}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select payment terms" />
             </SelectTrigger>
@@ -292,8 +300,24 @@ function Form({ info, setSheetOpen }) {
       {info ? (
         <div className="flex justify-end mt-10 gap-5">
           <Button variant="outline">Cancel</Button>
-          <Button id="edit" disabled={loading}>
-            {loading ? "Loading..." : "Save Changes"}
+          <Button className="rounded-2xl p-5" id="edit" disabled={loading}>
+            {loading ? (
+              <div className="flex items-center gap-5">
+                <span>loading</span>
+                <ThreeDots
+                  visible={true}
+                  height="80"
+                  width="80"
+                  color="#0f0"
+                  radius="9"
+                  ariaLabel="three-dots-loading"
+                  wrapperStyle={{ transform: "scale(2.2)" }}
+                  wrapperClass=""
+                />
+              </div>
+            ) : (
+              "Save Changes"
+            )}
           </Button>
         </div>
       ) : (
@@ -301,11 +325,27 @@ function Form({ info, setSheetOpen }) {
           <Button type="button" variant="outline">
             Discard
           </Button>
-          <Button id="draft" disabled={loading} variant="secondary">
-            {loading ? "Loading..." : "Save as Draft"}
+          <Button className='cursor-pointer' id="draft" disabled={loading} variant="secondary">
+              Save as Draft
           </Button>
-          <Button disabled={loading} id="pending">
-            {loading ? "Loading..." : "Save & Send"}
+          <Button className='cursor-pointer' disabled={loading} id="pending">
+            {loading ? (
+              <div className="flex items-center gap-5">
+                <span>loading</span>
+                <ThreeDots
+                  visible={true}
+                  height="80"
+                  width="80"
+                  color="#0f0"
+                  radius="9"
+                  ariaLabel="three-dots-loading"
+                  wrapperStyle={{ transform: "scale(2.2)" }}
+                  wrapperClass=""
+                />
+              </div>
+            ) : (
+              "Save & Send"
+            )}
           </Button>
         </div>
       )}

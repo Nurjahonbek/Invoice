@@ -1,8 +1,6 @@
 
 import Header from '../components/Header'
 import InvoiceCards from '../components/InvoiceCards'
-import ItemList from '../components/ItemList'
-import ThemesToggle from '../components/ThemesToggle'
 
 function Home() {
 
@@ -10,7 +8,6 @@ function Home() {
     <div>
       <Header/>
       <InvoiceCards/>
-      {/* <ItemList/> */}
     </div>
   )
 }

@@ -12,7 +12,7 @@ import { useAppStore } from "../lib/zustand";
 
 function ThemesToggle() {
   const { themes } = useAppStore();
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || 'default')
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || 'violet')
 
   function handleTheme(type, mode) {
     const html = document.documentElement

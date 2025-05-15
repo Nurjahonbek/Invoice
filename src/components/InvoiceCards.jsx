@@ -7,7 +7,6 @@ import NotFoundComponent from './NotFoundComponent';
 
 function InvoiceCards() {
   const { filter, invoices, setInvoices } = useAppStore();
-  // const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 

@@ -15,6 +15,8 @@ import { queryGenerator } from "../lib/utils";
 import { ArrowBigDown, PlusCircleIcon } from "lucide-react";
 import { useAppStore } from "../lib/zustand";
 import  Form  from "./Form";
+import InvoiceCards from "./InvoiceCards";
+import { addInvoice } from "../request";
 
 const info ={
   "createdAt": "2021-08-18",
@@ -50,7 +52,7 @@ const info ={
 function Header() {
   const { setSheetOpen} = useAppStore()
   const { setFilter } = useAppStore();
-  const { filter } = useAppStore();
+  const { filter, invoices } = useAppStore();
   const [items, setItems] = useState({
     draft: false,
     paid: false,
@@ -72,7 +74,7 @@ function Header() {
     <div className="base-container flex items-center justify-between py-10">
       <div>
         <h1 className="font-bold text-3xl">Invoices</h1>
-        <p>There are 7 total invoices</p>
+        <p>There are {invoices.length} total invoices</p>
       </div>
 
       <DropdownMenu>
@@ -108,7 +110,7 @@ function Header() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-        <Button  onClick={setSheetOpen}>
+        <Button className='rounded-full p-5'  onClick={setSheetOpen}>
         <PlusCircleIcon />
         New Invoices
         </Button>

@@ -5,136 +5,132 @@ import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-  } from "@/components/ui/select"
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { prepareData } from "../lib/utils";
 import { useAppStore } from "../lib/zustand";
 import { addInvoice, updateById } from "../request";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
-function Form({info, setSheetOpen}) {
-  const {items: zustandItems} = useAppStore()
-  const {
-    senderAddress,
-    clientAddress,
-    clientEmail,
-    clientName,
-    paymentTerms,
-    description,
-    paymentDue,
-    createdAt,
-    items
-    } = info || {};
+function Form({ info, setSheetOpen }) {
+  const { items: zustandItems, setItems } = useAppStore();
 
-    const navigate = useNavigate()
-    const {setInvoices, updateInvoice} = useAppStore()
-    const [sending, setSending] = useState(null)
-    // const [updating, setUpdating] = useState(null)
-    const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    if (info && info.items) {
+      setItems(info.items);
+    }
+  }, [info, setItems]);
 
-    function handleSubmit(e){
-        e.preventDefault()
-        const formData = new FormData(e.target)
-        const result = {}
-        if(!info){
-          result.status = e.nativeEvent.submitter.id
-        }
+  const navigate = useNavigate();
+  const { setInvoices, updateInvoice } = useAppStore();
+  const [sending, setSending] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-        formData.forEach((value, key) => {
-          if(key === 'quantity' || key === 'price' || key === 'paymentTerms'){
-            result[key] = Number(value)
-          }
-          else{
-            result[key] = value
+  function handleSubmit(e) {
+    e.preventDefault();
 
-          }
-        })
-        result.items = zustandItems
-        const readyData = prepareData(result)
-        setSending(readyData)
-        setSending({mode: e.nativeEvent.submitter.id === "edit" ? "edit" : "add", data: readyData})
+    const formData = new FormData(e.target);
+    const result = {
+      senderAddress: {},
+      clientAddress: {},
+      items: zustandItems,
+    };
 
+    formData.forEach((value, key) => {
+      if (key.startsWith("senderAddress-")) {
+        const subKey = key.replace("senderAddress-", "");
+        result.senderAddress[subKey] = value;
+      } else if (key.startsWith("clientAddress-")) {
+        const subKey = key.replace("clientAddress-", "");
+        result.clientAddress[subKey] = value;
+      } else if (key === "quantity" || key === "price" || key === "paymentTerms") {
+        result[key] = Number(value);
+      } else {
+        result[key] = value;
+      }
+    });
+
+    result.total = zustandItems.reduce((acc, item) => acc + (item.quantity * item.price), 0);
+
+    const btnId = e.nativeEvent.submitter.id;
+    if (btnId === "draft") {
+      result.status = "draft";
+    } else {
+      result.status = "pending";
     }
 
-    // useEffect(() => {
-    //   if(updating){
-    //     setLoading(true)
-    //      updateById(updating.id, updating)
-    //         .then((res) => {
-    //           setInvoices(res)
-    //           navigate(-1)
-    //         })
-    //         .catch(({message}) => {
-    //           toast.error(message)
-    //         })
-    //         .finally(() => {
-    //           setUpdating(null)
-    //           setLoading(false)
-    //         })
+    const readyData = prepareData(result);
 
-    //   }
-    // }, [updating])
+    setSending({
+      mode: btnId === "edit" ? "edit" : "add",
+      data: readyData,
+    });
+  }
 
-    useEffect(() => {
-      if(sending){
-        setLoading(true)
-        if(sending.mode === "add"){
-        addInvoice(sending)
-        .then((res) => {
-          toast.success("Succesfully added ✅")
-          setSheetOpen(false)
-          updateInvoice(res)
-        })
-        .catch(({message}) => {
-          toast.error(message)
 
-        })
-        .finally(() => {
-          setLoading(false)
-          setSending(null)
-        })
-        }
-        else if(sending.mode === "edit"){
-          updateById(info.id, sending.data)
+
+  useEffect(() => {
+    if (sending) {
+      setLoading(true);
+      if (sending.mode === "add") {
+        addInvoice(sending.data)
           .then((res) => {
-            toast.success("Succesfully edited ✅")
-            setSheetOpen(false)
-            navigate(-1)
-            updateInvoice(res)
-          })
-          .catch(({message}) => {
-            toast.error(message)
+            toast.success("Successfully added ✅");
+            setSheetOpen(false);
+            console.log(res);
 
+            updateInvoice(res);
+          })
+          .catch(({ message }) => {
+            toast.error(message);
           })
           .finally(() => {
-            setLoading(false)
-            setSending(null)
+            setLoading(false);
+            setSending(null);
+          });
+      } else if (sending.mode === "edit") {
+        updateById(info.id, sending.data)
+          .then((res) => {
+            toast.success("Successfully edited ✅");
+            setSheetOpen(false);
+            navigate(-1);
+            updateInvoice(res);
           })
-        }
-
+          .catch(({ message }) => {
+            toast.error(message);
+          })
+          .finally(() => {
+            setLoading(false);
+            setSending(null);
+          });
       }
-    }, [sending ? JSON.stringify(sending) : sending])
+    }
+  }, [sending, info, navigate, setSheetOpen, updateInvoice]);
+
+  // console.log(info);
+
 
   return (
     <form onSubmit={handleSubmit} className="p-4 ml-5 pt-14">
+      {/* Bill From */}
       <div className="mb-10">
-        <h3 className="text-2xl mb-5 font-medium">Bill From </h3>
+        <h3 className="text-2xl mb-5 font-medium">Bill From</h3>
         <div className="flex flex-col gap-5">
           <div className="grid w-full max-w-full items-center gap-1.5">
             <Label htmlFor="senderAddress-street">Street Address</Label>
             <Input
               type="text"
-              defaultValue={info && senderAddress.street}
+              defaultValue={info?.senderAddress?.street || ""}
               name="senderAddress-street"
               id="senderAddress-street"
-              placeholder="Street Addres"
+              placeholder="Street Address"
             />
           </div>
 
@@ -142,72 +138,73 @@ function Form({info, setSheetOpen}) {
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <Label htmlFor="senderAddress-city">City</Label>
               <Input
-                defaultValue={info && senderAddress.city}
-                name="senderAddress-city"
                 type="text"
                 id="senderAddress-city"
+                name="senderAddress-city"
                 placeholder="City"
+                defaultValue={info?.senderAddress?.city || ""}
               />
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5">
-              <Label htmlFor="senderAddress-postCode">Post code</Label>
+              <Label htmlFor="senderAddress-postcode">Post code</Label>
               <Input
-                defaultValue={info && senderAddress.postCode}
-                name="senderAddress-postcode"
                 type="text"
                 id="senderAddress-postcode"
+                name="senderAddress-postcode"
                 placeholder="Post code"
+                defaultValue={info?.senderAddress?.postCode || ""}
               />
             </div>
 
             <div className="grid w-full max-w-sm items-center gap-1.5">
               <Label htmlFor="senderAddress-country">Country</Label>
               <Input
-                defaultValue={info && senderAddress.country}
                 type="text"
-                name="senderAddress-country"
                 id="senderAddress-country"
+                name="senderAddress-country"
                 placeholder="Country"
+                defaultValue={info?.senderAddress?.country || ""}
               />
             </div>
           </div>
         </div>
       </div>
 
+      {/* Bill To */}
       <div className="mb-10">
         <h3 className="text-2xl font-medium mb-5">Bill To</h3>
         <div className="flex flex-col gap-5 mb-5">
           <div className="grid w-full max-w-full items-center gap-1.5">
             <Label htmlFor="clientName">Client's Name</Label>
             <Input
-            defaultValue={info && clientName}
               type="text"
-              name="clientName"
               id="clientName"
+              name="clientName"
               placeholder="Client's Name"
+              defaultValue={info?.clientName || ""}
             />
           </div>
 
           <div className="grid w-full max-w-full items-center gap-1.5">
             <Label htmlFor="clientEmail">Client's Email</Label>
             <Input
-              defaultValue={info && clientEmail}
               type="email"
-              name="clientEmail"
               id="clientEmail"
+              name="clientEmail"
               placeholder="Client's Email"
+              defaultValue={info?.clientEmail || ""}
             />
           </div>
 
           <div className="grid w-full max-w-full items-center gap-1.5">
-            <Label htmlFor="clientAddress">Street Address</Label>
+            <Label htmlFor="clientAddress-street">Street Address</Label>
             <Input
-              defaultValue={info && clientAddress}
               type="text"
-              name="clientAddress"
-              id="clientAddress"
-              placeholder="Client's Address"
+              id="clientAddress-street"
+              name="clientAddress-street"
+              placeholder="Client's Street Address"
+              defaultValue={info?.clientAddress?.street || ""}
             />
           </div>
         </div>
@@ -216,22 +213,22 @@ function Form({info, setSheetOpen}) {
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor="clientAddress-city">City</Label>
             <Input
-              defaultValue={info && clientAddress.city}
-              name="clientAddress-city"
               type="text"
               id="clientAddress-city"
+              name="clientAddress-city"
               placeholder="City"
+              defaultValue={info?.clientAddress?.city || ""}
             />
           </div>
 
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor="clientAddress-postcode">Post code</Label>
             <Input
-              defaultValue={info && clientAddress.postCode}
-              name="clientAddress-postcode"
               type="text"
               id="clientAddress-postcode"
+              name="clientAddress-postcode"
               placeholder="Post code"
+              defaultValue={info?.clientAddress?.postCode || ""}
             />
           </div>
 
@@ -239,70 +236,79 @@ function Form({info, setSheetOpen}) {
             <Label htmlFor="clientAddress-country">Country</Label>
             <Input
               type="text"
-              defaultValue={info && clientAddress.country}
-              name="clientAddress-country"
               id="clientAddress-country"
+              name="clientAddress-country"
               placeholder="Country"
+              defaultValue={info?.clientAddress?.country || ""}
             />
           </div>
         </div>
       </div>
 
+      {/* Invoice Details */}
       <div className="flex flex-col gap-5 mb-10">
         <div className="flex gap-10 items-end">
-
-        <div className="grid w-full max-w-full items-center gap-1.5">
-          <Label htmlFor="createdAt">Invoice date</Label>
-          <Input
-            type="date"
-            defaultValue={info && createdAt}
-            id="createdAt"
-            name="createdAt"
-            placeholder="Invoice date"
+          <div className="grid w-full max-w-full items-center gap-1.5">
+            <Label htmlFor="createdAt">Invoice date</Label>
+            <Input
+              type="date"
+              id="createdAt"
+              name="createdAt"
+              placeholder="Invoice date"
+              defaultValue={info?.createdAt || ""}
             />
-        </div>
-        <Select name='paymentTerms' defaultValue={info && paymentTerms.toString()}>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Select a fruit" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Terms</SelectLabel>
-          <SelectItem value="1">Net 1 Day</SelectItem>
-          <SelectItem value="7">Net 7 Day</SelectItem>
-          <SelectItem value="14">Net 14 Day</SelectItem>
-          <SelectItem value="30">Net 30 Day</SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
           </div>
+
+          <Select name="paymentTerms" defaultValue={info?.paymentTerms?.toString() || "30"}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select payment terms" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Terms</SelectLabel>
+                <SelectItem value="1">Net 1 Day</SelectItem>
+                <SelectItem value="7">Net 7 Days</SelectItem>
+                <SelectItem value="14">Net 14 Days</SelectItem>
+                <SelectItem value="30">Net 30 Days</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="grid w-full max-w-full items-center gap-1.5">
           <Label htmlFor="description">Project description</Label>
           <Input
-            defaultValue={info && description}
             type="text"
             id="description"
             name="description"
             placeholder="Project description"
+            defaultValue={info?.description || ""}
           />
         </div>
       </div>
 
-      <ItemList info={info && info.items}/>
+      <ItemList info={info?.items} />
 
       {info ? (
         <div className="flex justify-end mt-10 gap-5">
-        <Button variant={'outline'}>Cencel</Button>
-        <Button id='edit' disabled={loading}>{loading ? 'Loading...' : 'Save Changes'}</Button>
-      </div>
+          <Button variant="outline">Cancel</Button>
+          <Button id="edit" disabled={loading}>
+            {loading ? "Loading..." : "Save Changes"}
+          </Button>
+        </div>
       ) : (
-      <div className="flex justify-end mt-10 gap-5">
-        <Button type='button' variant={'outline'}>Discard</Button>
-        <Button id="draft" disabled={loading} variant={'secondary'}>{loading ? 'loading' : 'Save as Draft'}</Button>
-        <Button disabled={loading} id='pending'>{loading ? "loading" : "Save & Send"}</Button>
-      </div>
+        <div className="flex justify-end mt-10 gap-5">
+          <Button type="button" variant="outline">
+            Discard
+          </Button>
+          <Button id="draft" disabled={loading} variant="secondary">
+            {loading ? "Loading..." : "Save as Draft"}
+          </Button>
+          <Button disabled={loading} id="pending">
+            {loading ? "Loading..." : "Save & Send"}
+          </Button>
+        </div>
       )}
-
     </form>
   );
 }

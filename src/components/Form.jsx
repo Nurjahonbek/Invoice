@@ -123,7 +123,7 @@ function Form({ info, setSheetOpen }) {
   }, [sending, info, navigate, setSheetOpen, updateInvoice]);
 
   return (
-    <form onSubmit={handleSubmit} className="p-4 ml-5 pt-14">
+    <form onSubmit={handleSubmit} className="p-4 max-sm:ml-0 ml-5 pt-14">
       {/* Bill From */}
       <div className="mb-10">
         <h3 className="text-2xl mb-5 font-medium">Bill From</h3>
@@ -214,6 +214,7 @@ function Form({ info, setSheetOpen }) {
           </div>
         </div>
 
+        <div className="flex sm:flex-row justify-between gap-5 flex-col">
         <div className="flex justify-between gap-5">
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor="clientAddress-city">City</Label>
@@ -247,6 +248,8 @@ function Form({ info, setSheetOpen }) {
               defaultValue={info?.clientAddress?.country || ""}
             />
           </div>
+        </div>
+
         </div>
       </div>
 
@@ -321,7 +324,7 @@ function Form({ info, setSheetOpen }) {
           </Button>
         </div>
       ) : (
-        <div className="flex justify-end mt-10 gap-5">
+        <div className="flex max-sm:gap-3 justify-end mt-10 gap-5">
           <Button type="button" variant="outline">
             Discard
           </Button>

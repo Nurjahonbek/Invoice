@@ -36,9 +36,9 @@ function Sidebar() {
       </div>
       <Sheet open={sheetOpen} onOpenChange = {setSheetOpen} >
 
-        <SheetContent className="ml-[72px] min-w-[calc(70%-72px)] min-h-[calc(100%-56px)] overflow-y-scroll"  side="left">
+        <SheetContent className="ml-[72px] max-md:ml-0 max-md:max-w-[100%-90px] max-sm:ml-0 max-sm:min-w-[100%] min-w-[calc(70%-12px)] min-sm:overflow-x-hidden min-h-[calc(100%-56px)] overflow-y-scroll"  side="left">
           <SheetHeader className='sticky top-0 w-full bg-white border-b'>
-            <SheetTitle>Are you absolutely sure?</SheetTitle>
+            <SheetTitle className='text-[#0C0E16] text-2xl font-bold ml-7'>New Invoice</SheetTitle>
             <Form setSheetOpen = {setSheetOpen} info={editedData}/>
           </SheetHeader>
         </SheetContent>

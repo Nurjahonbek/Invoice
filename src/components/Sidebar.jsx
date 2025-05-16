@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/sheet";
 
 import React from 'react'
-import logo from '../../public/logo.svg'
+import logo from '/public/logo.svg'
 import { Button } from './ui/button'
 import { useAppStore } from '../lib/zustand'
 import ThemesToggle from './ThemesToggle'

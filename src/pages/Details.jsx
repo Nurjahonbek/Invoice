@@ -89,10 +89,10 @@ function Details() {
 
       <div className="bg-white rounded-lg shadow-xl p-6 flex justify-between items-center border border-gray-200">
         <div className="flex items-center gap-4">
-          <span className="text-gray-700 text-sm font-medium">Status:</span>
+          <span className="text-gray-700  text-sm font-medium">Status:</span>
           <StatusBadge status={invoice.status} />
         </div>
-        <div className="flex gap-4">
+        <div className="flex max-sm:flex-col gap-4">
           <Button
             className="rounded-full p-5"
             variant="outline"
@@ -183,7 +183,7 @@ function Details() {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-6 text-sm">
+        <div className="grid grid-cols-3 gap-6 max-sm:flex-col max-sm:grid-cols-2  text-sm">
           <div>
             <p className="text-[#7E88C3] ">Invoice Date</p>
             <p className="font-bold text-base text-[#0C0E16]">

@@ -79,7 +79,7 @@ function Details() {
   if (error) return <p className="base-container">{error}</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl min-md:ml-15 mx-auto p-6 space-y-6">
       <button
         onClick={() => navigate(-1)}
         className="text-[15px] font-medium text-violet-600  hover:underline"

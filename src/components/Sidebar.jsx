@@ -18,7 +18,7 @@ import logo from '../../public/logo.svg'
 import { Button } from './ui/button'
 import { useAppStore } from '../lib/zustand'
 import ThemesToggle from './ThemesToggle'
-import oval from '../../public/oval.svg'
+import oval from '/public/oval.svg'
 import  Form  from "./Form"
 
 function Sidebar() {

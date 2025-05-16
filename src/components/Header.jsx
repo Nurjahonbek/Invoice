@@ -71,11 +71,13 @@ function Header() {
   }
 
   return (
-    <div className="base-container flex items-center justify-between py-10">
+    <div className="base-container flex items-center max-sm:gap-18 justify-between py-10">
       <div>
-        <h1 className="font-bold text-3xl">Invoices</h1>
+        <h1 className="font-bold max-sm:mb-2 text-3xl">Invoices</h1>
         <p>There are {invoices.length} total invoices</p>
       </div>
+
+      <div className="max-sm:flex-col max-sm">
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -91,17 +93,17 @@ function Header() {
             {Object.entries(items).map(([key, value]) => {
               return (
                 <label
-                  key={key}
-                  className={`${buttonVariants({
-                    variant: "ghost",
-                  })} justify-start capitalize`}
-                  htmlFor={key}
+                key={key}
+                className={`${buttonVariants({
+                  variant: "ghost",
+                })} justify-start capitalize`}
+                htmlFor={key}
                 >
                   <Checkbox
                     onCheckedChange={() => handleChange(key)}
                     checked={value}
                     id={key}
-                  />
+                    />
                   {key}
                 </label>
               );
@@ -110,12 +112,12 @@ function Header() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-        <Button className='rounded-full p-5'  onClick={setSheetOpen}>
+        <Button className='rounded-full max-sm:mt-3 p-5'  onClick={setSheetOpen}>
         <PlusCircleIcon />
         New Invoices
         </Button>
 
-
+            </div>
     </div>
   );
 }
